@@ -1,6 +1,7 @@
 node_modules/**
 build/**
 data/**
+logs/**
 .vscode
 
 .env.local
