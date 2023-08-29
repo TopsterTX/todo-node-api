@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { TODO_PATH } from "constants/index";
 import { readFile, writeFile } from "utils/index";
 import { TodoModel } from "models/todo";
+import { errorHandler, responseHandler } from "utils/handlers";
 
 type ControllerKeys = "findAll" | "findById" | "create" | "delete" | "update";
 
@@ -14,7 +15,7 @@ const writeTodo = (data: string, path: string = TODO_PATH) =>
 export const todoController: Record<ControllerKeys, RequestHandler> = {
   findAll: async (req, res) => {
     const todos = await readTodos();
-    return res.json(todos);
+    return res.json(responseHandler(todos));
   },
   findById: async (req, res) => {
     const { id } = req.params;
@@ -22,30 +23,31 @@ export const todoController: Record<ControllerKeys, RequestHandler> = {
     const currTodo = todos.find((todo) => todo.id === id);
 
     if (!currTodo) {
-      return res.send("todo not found");
+      return res.json(errorHandler("Todo is not found"));
     }
 
-    return res.json(currTodo);
+    return res.json(responseHandler(currTodo));
   },
   create: async (req, res) => {
     const { author, body, title } = req.body as TodoModel;
     const id = uuidv4();
+    const newTodo = { id, author, body, title };
     const todos = await readTodos();
 
     if (!id) {
-      return res.send("Error, id is required");
+      return res.send(errorHandler("Id is required"));
     }
 
     const equalTodo = todos.find((todo) => todo.id === id);
 
     if (equalTodo) {
-      return res.send("Error, todo already create");
+      return res.send(errorHandler("Todo already create"));
     }
 
-    todos.push({ id, author, body, title });
+    todos.push(newTodo);
 
     writeTodo(JSON.stringify(todos));
-    return res.json({ status: "ok!" });
+    return res.json(responseHandler(newTodo));
   },
   delete: async (req, res) => {
     const { id } = req.params;
@@ -53,7 +55,7 @@ export const todoController: Record<ControllerKeys, RequestHandler> = {
     const filteredTodos = todos.filter((todo) => todo.id !== id);
 
     writeTodo(JSON.stringify(filteredTodos));
-    return res.json({ status: "ok!" });
+    return res.json(responseHandler(null));
   },
   update: async (req, res) => {
     const { id } = req.params;
@@ -62,7 +64,7 @@ export const todoController: Record<ControllerKeys, RequestHandler> = {
     const todos = await readTodos();
 
     if (!todos.find((todo) => todo.id === id)) {
-      return res.send("Error, todo not found");
+      return res.send(errorHandler("Todo not found"));
     }
 
     for (let i = 0; i < todos.length; i++) {
@@ -78,6 +80,6 @@ export const todoController: Record<ControllerKeys, RequestHandler> = {
     }
 
     writeTodo(JSON.stringify(todos));
-    return res.json({ status: "ok!" });
+    return res.json(responseHandler(null));
   },
 };
