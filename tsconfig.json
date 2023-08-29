@@ -40,7 +40,11 @@
     "paths": {
       "routes/*": ["./src/routes/*"],
       "utils/*": ["./src/utils/*"],
-      "constants/*": ["./src/constants/*"]
+      "constants/*": ["./src/constants/*"],
+      "models/*": ["./src/models/*"],
+      "controllers/*": ["./src/controllers/*"],
+      "middlewares/*": ["./src/middlewares/*"],
+      "types/*": ["./src/types/*"]
     } /* Specify a set of entries that re-map imports to additional lookup locations. */,
     "plugins": [
       {
